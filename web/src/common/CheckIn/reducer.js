@@ -39,6 +39,8 @@ export default function checkinReducer(state = new InitialState(), action) {
                     key = `${key}_${assignment.workshop_id}`;
                   } else if (assignment.type === 'SPEED_DATING') {
                     key = `${key}_${assignment.speed_dating_id}`;
+                  } else if (assignment.type === 'ROUND_TABLE') {
+                    key = `${key}_${assignment.round_table_id}`;
                   } else {
                     throw new Error('Unsupported assignment type: ' + assignment.type);
                   }
