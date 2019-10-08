@@ -3,6 +3,7 @@ import { withRouter } from 'react-router-dom';
 import { Map } from 'immutable';
 import { withStyles } from 'material-ui/styles';
 import { connect } from 'react-redux';
+import Button from 'material-ui/Button';
 import List, { ListItem, ListItemText } from 'material-ui/List';
 
 import * as actions from '../../common/CheckIn/actions';
@@ -94,26 +95,36 @@ class ActivitiesPage extends Component {
         }
 
         {!selectedActivityId && selectedCompanyId ?
-          <div className={classes.root}>
-            <h2>Select activities</h2>
-            <List>
-              {companiesIds.get(selectedCompanyId).map(id =>
-                <ListItem
-                  key={id}
-                  divider
-                  button
-                  onClick={() => {
-                    selectActivity(id);
-                    history.push(`/activities/${id}`);
-                  }}
-                >
-                  <ListItemText
-                    primary={activities.getIn([id, 'title'])}
-                    secondary={activities.getIn([id, 'type'])}
-                  />
-                </ListItem>
-              )}
-            </List>
+          <div>
+            <Button
+              variant="raised"
+              onClick={() => {
+                this.props.selectCompany(null);
+              }}
+            >
+            Back
+            </Button>
+            <div className={classes.root}>
+              <h2>Select activities</h2>
+              <List>
+                {companiesIds.get(selectedCompanyId).map(id =>
+                  <ListItem
+                    key={id}
+                    divider
+                    button
+                    onClick={() => {
+                      selectActivity(id);
+                      history.push(`/activities/${id}`);
+                    }}
+                  >
+                    <ListItemText
+                      primary={activities.getIn([id, 'title'])}
+                      secondary={activities.getIn([id, 'type'])}
+                    />
+                  </ListItem>
+                )}
+              </List>
+            </div>
           </div>
           : null
         }

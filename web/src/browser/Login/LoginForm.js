@@ -21,7 +21,7 @@ class LoginForm extends Component {
     const { classes, handleSubmit, loginUser, user } = this.props;
 
     return (
-      <form onSubmit={handleSubmit(data => loginUser(data.email, data.password))}>
+      <form onSubmit={handleSubmit(data => loginUser(data.email, data.password, this.props.history))}>
         <div className="col-md-12">
           <img src={logo} className="App-logo" alt="logo" />
         </div>

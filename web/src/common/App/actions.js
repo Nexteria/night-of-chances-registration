@@ -46,11 +46,16 @@ export const ACTIVE_CONFERENCE_CHANGE = 'ACTIVE_CONFERENCE_CHANGE';
 export const TOGGLE_CONFERENCE_CHANGE_DIALOG = 'TOGGLE_CONFERENCE_CHANGE_DIALOG';
 export const CLOSE_RESTART_DIALOG = 'CLOSE_RESTART_DIALOG';
 
-export function fetchUserData(uid) {
+export function fetchUserData(uid, history) {
   return ({ firebase }) => ({
     type: FETCH_USER_DATA,
     payload: {
-      promise: firebase.database().ref(`/users/${uid}`).once('value').then(snapshot => snapshot.val())
+      promise: firebase.database().ref(`/users/${uid}`).once('value').then(snapshot => snapshot.val()).then(data => {
+        if (data.isBuddy) {
+          history.push('/activities');
+        }
+        return data;
+      })
     },
   });
 }
@@ -87,16 +92,18 @@ export function closeRestartDialog() {
   };
 }
 
-export function loginUser(email, password) {
+export function loginUser(email, password, history) {
   return ({ firebase, dispatch }) => ({
     type: USER_LOGIN,
     payload: {
       promise: firebase.auth().signInWithEmailAndPassword(email, password)
         .then(
             data => {
-              dispatch(fetchUserData(data.uid));
               dispatch(fetchConferences());
-              dispatch(fetchActiveConferenceId());
+              dispatch(fetchActiveConferenceId()).then(confData => {
+                dispatch(fetchUserData(data.uid, history));
+                return confData;
+              });
               toastr.options.timeOut = 5000;
               toastr.success('Login was successful');
 

@@ -113,7 +113,6 @@ class StatsPage extends Component {
                         <TableBody>
                             {filteredActivities.keySeq().map((key) => {
                                 const activity = activities.get(key);
-                                activity.get('attendees').keySeq().map(x => x).filter(x => console.log(x));
                                 let checkedInCount = activity.get('attendees').filter((value, key) =>
                                     attendance.has(key) && attendance.get(key)
                                 ).size;

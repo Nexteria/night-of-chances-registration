@@ -38,6 +38,7 @@ export default function appReducer(state = new InitialState(), action) {
 
     case actions.FETCH_USER_DATA_SUCCESS: {
       return state.setIn(['user', 'isAdmin'], action.payload.isAdmin)
+                  .setIn(['user', 'isBuddy'], action.payload.isBuddy)
                   .update('loadingCount', count => count - 1);
     }
 

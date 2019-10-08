@@ -50,8 +50,12 @@ export default function activitiesReducer(state = new InitialState(), action) {
         return newState;
     }
 
-    case actions.ACTIVITIES_ATTENDANCE_SUBSCRIBED_SUCCESS: {
+    case actions.ACTIVITIES_ATTENDANCE_SUBSCRIBED_START: {
         return state.set('attendanceIsSubscribed', true);
+    }
+
+    case actions.ACTIVITIES_ATTENDANCE_SUBSCRIBED_ERROR: {
+        return state.set('attendanceIsSubscribed', false);
     }
 
     case actions.UPDATE_ACTIVITY_ATTENDANCE: {

@@ -100,7 +100,7 @@ class App extends Component {
             </Toolbar>
           </AppBar>
 
-          {user ?
+          {user && !user.get('isBuddy') ?
             <Drawer
               variant="permanent"
               classes={{
@@ -174,7 +174,7 @@ class App extends Component {
             : null
           }
 
-          <main className={`${classes.content} ${user ? classes.contentWithDrawer : ''}`}>
+          <main className={`${classes.content} ${user && !user.get('isBuddy') ? classes.contentWithDrawer : ''}`}>
             <div className={classes.toolbar} />
               <div className="container text-center">
                 <div className="content">

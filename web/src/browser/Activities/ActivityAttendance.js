@@ -1,17 +1,19 @@
 import React, { Component } from 'react';
 import { withStyles } from 'material-ui/styles';
 import { connect } from 'react-redux';
-import { List } from 'react-virtualized';
+import { List, AutoSizer } from 'react-virtualized';
 import { ListItem, ListItemSecondaryAction, ListItemText } from 'material-ui/List';
 import Checkbox from 'material-ui/Checkbox';
 import TextField from 'material-ui/TextField';
 import { InputAdornment } from 'material-ui/Input';
 import SearchIcon from 'material-ui-icons/Search';
+import { withRouter } from 'react-router-dom';
 import CheckIcon from 'material-ui-icons/CheckCircle';
 
 import * as actions from '../../common/Activities/actions';
 import * as checkinActions from '../../common/CheckIn/actions';
 import * as registrationActions from '../../common/Registration/actions';
+import Button from 'material-ui/Button';
 
 const styles = theme => ({
   list: {
@@ -151,6 +153,15 @@ class ActivityAttendance extends Component {
 
     return (
       <div>
+        <Button
+          variant="raised"
+          onClick={() => {
+            this.props.selectActivity(null);
+            this.props.history.push(`/activities`);
+          }}
+        >
+        Back
+        </Button>
         <h3>{activity.get('title')}</h3>
         <h4>{activityAttendance.size} / {activity.get('attendees').size}</h4>
         <TextField
@@ -161,23 +172,30 @@ class ActivityAttendance extends Component {
           }}
         />
 
-        <List
-          ref="List"
-          className={classes.list}
-          height={450}
-          overscanRowCount={15}
-          noRowsRenderer={this._noRowsRenderer}
-          rowCount={sortedAttendees.size}
-          rowHeight={settings.rowHeight}
-          rowRenderer={(data) => this._rowRenderer(data, sortedAttendees, classes, activity)}
-          width={500}
-        />
+        <div style={{ height: '100%' }}>
+          <AutoSizer disableHeight>
+            {({width}) => (
+              <List
+                ref="List"
+                className={classes.list}
+                height={450}
+                overscanRowCount={15}
+                noRowsRenderer={this._noRowsRenderer}
+                rowCount={sortedAttendees.size}
+                rowHeight={settings.rowHeight}
+                rowRenderer={(data) => this._rowRenderer(data, sortedAttendees, classes, activity)}
+                width={width}
+              />
+            )}
+          </AutoSizer>
+        </div>
       </div>
     );
   }
 }
 
 ActivityAttendance = withStyles(styles)(ActivityAttendance);
+ActivityAttendance = withRouter(ActivityAttendance);
 
 export default connect(state => ({
   attendees: state.checkin.attendees,

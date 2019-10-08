@@ -77,6 +77,8 @@ export function subscribeAttendanceIfNeeded(conferenceId) {
       return { type: 'OPERATION_NOT_NEEDED' };
     }
 
+    const state = getState();
+
     return {
       type: ATTENDANCE_SUBSCRIBED,
       payload: {
@@ -86,7 +88,11 @@ export function subscribeAttendanceIfNeeded(conferenceId) {
           firebase.database().ref(`/attendance/conference_${conferenceId}/checkin`)
             .on('child_removed', snapshot => dispatch(updateAttendance(snapshot.key, snapshot.val(), 'delete'))),
           firebase.database().ref(`/attendance/conference_${conferenceId}/checkin`)
-            .on('child_added', snapshot => dispatch(updateAttendance(snapshot.key, snapshot.val(), 'add')))
+            .on('child_added', snapshot => {
+              if (state.checkin.hasIn(['attendance', snapshot.key])) {
+                dispatch(updateAttendance(snapshot.key, snapshot.val(), 'add'));
+              }
+            })
         ]),
       }
     }
