@@ -2,6 +2,9 @@
   "name": "web",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "8"
+  },
   "dependencies": {
     "bootstrap": "^4.0.0",
     "date-fns": "^1.29.0",

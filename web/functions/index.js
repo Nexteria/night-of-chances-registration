@@ -105,21 +105,29 @@
                 const lastTimeUpload = yield admin.database().ref(`/conferences/conference_${conferenceId}/uploadTime`).once('value');
 
                 if (data.onspot && !lastTimeUpload) {
-                    const attendees = Object.keys(data.onspot).map(function (key) {
-                        const checked_in = data.checkin[key].check_in || null;
-                        const checked_out = data.checkin[key].check_out || null;
+                    let attendees = [];
+                    Object.keys(data.onspot).map(function (key) {
+                        let checked_in = null;
+                        let checked_out = null;
 
-                        return {
-                            checked_in,
-                            checked_out,
-                            email: data.onspot[key].email,
-                            first_name: data.onspot[key].name,
-                            last_name: data.onspot[key].surname,
-                            phone: data.onspot[key].phone,
-                            school: data.onspot[key].school,
-                            students_year: data.onspot[key].school,
-                            ticket_class_name: "ON_SPOT" };
+                        if (data.checkin[key]) {
+                            checked_in = data.checkin[key].check_in || null;
+                            checked_out = data.checkin[key].check_out || null;
+                        }
 
+                        if (!data.onspot[key].uploaded) {
+                            attendees.push({
+                                checked_in,
+                                checked_out,
+                                email: data.onspot[key].email,
+                                first_name: data.onspot[key].name,
+                                last_name: data.onspot[key].surname,
+                                phone: data.onspot[key].phone,
+                                school: data.onspot[key].school,
+                                students_year: data.onspot[key].school,
+                                ticket_class_name: "ON_SPOT" });
+
+                        }
                     });
 
                     console.log('Creating new attendees!');
@@ -139,7 +147,14 @@
                         }
 
                         return response.json();
-                    });
+                    }).then((() => {var _ref7 = (0, _asyncToGenerator3.default)(function* (data) {
+                            yield Promise.all(Object.keys(data.onspot).map(function (key) {return (
+                                    admin.database().ref(`/attendance/conference_${conferenceId}/onspot/${key}/uploaded`).
+                                    set(true));}));
+
+
+                            return data;
+                        });return function (_x10) {return _ref7.apply(this, arguments);};})());
                 }
 
                 if (data.checkin) {
@@ -173,7 +188,7 @@
                 }
 
                 if (data.activities) {
-                    Object.keys(data.activities).forEach((() => {var _ref7 = (0, _asyncToGenerator3.default)(function* (key) {
+                    Object.keys(data.activities).forEach((() => {var _ref8 = (0, _asyncToGenerator3.default)(function* (key) {
                             let keyParts = key.split('_');
                             const activityId = keyParts[keyParts.length - 1];
 
@@ -214,10 +229,10 @@
 
                                 return response.json();
                             }).then(function (data) {return console.log(data);});
-                        });return function (_x10) {return _ref7.apply(this, arguments);};})());
+                        });return function (_x11) {return _ref8.apply(this, arguments);};})());
                 }
             });return function (_x9) {return _ref6.apply(this, arguments);};})());
-    });return function fetchAttendanceAndUpdate(_x8) {return _ref5.apply(this, arguments);};})();let fetchAndUpdateAttendees = (() => {var _ref8 = (0, _asyncToGenerator3.default)(
+    });return function fetchAttendanceAndUpdate(_x8) {return _ref5.apply(this, arguments);};})();let fetchAndUpdateAttendees = (() => {var _ref9 = (0, _asyncToGenerator3.default)(
 
     function* (conferenceId) {
         let totalAttendees = 0;
@@ -274,7 +289,7 @@
 
         return admin.database().ref(`/conferences/conference_${conferenceId}/attendeesCount`).
         set(totalAttendees);
-    });return function fetchAndUpdateAttendees(_x11) {return _ref8.apply(this, arguments);};})();function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}const functions = require('firebase-functions');require('es6-promise').polyfill();require('isomorphic-fetch');const admin = require('firebase-admin');admin.initializeApp(functions.config().firebase);const express = require('express');const cookieParser = require('cookie-parser')();const cors = require('cors')({ origin: true });const app = express();const validateFirebaseIdToken = (req, res, next) => {if ((!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) && !req.cookies.__session) {console.error('No Firebase ID token was passed as a Bearer token in the Authorization header.', 'Make sure you authorize your request by providing the following HTTP header:', 'Authorization: Bearer <Firebase ID Token>', 'or by passing a "__session" cookie.');res.status(403).send('Unauthorized');return;}let idToken;if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {// Read the ID Token from the Authorization header.
+    });return function fetchAndUpdateAttendees(_x12) {return _ref9.apply(this, arguments);};})();function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}const functions = require('firebase-functions');require('es6-promise').polyfill();require('isomorphic-fetch');const admin = require('firebase-admin');admin.initializeApp(functions.config().firebase);const express = require('express');const cookieParser = require('cookie-parser')();const cors = require('cors')({ origin: true });const app = express();const validateFirebaseIdToken = (req, res, next) => {if ((!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) && !req.cookies.__session) {console.error('No Firebase ID token was passed as a Bearer token in the Authorization header.', 'Make sure you authorize your request by providing the following HTTP header:', 'Authorization: Bearer <Firebase ID Token>', 'or by passing a "__session" cookie.');res.status(403).send('Unauthorized');return;}let idToken;if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {// Read the ID Token from the Authorization header.
         idToken = req.headers.authorization.split('Bearer ')[1];} else {// Read the ID Token from cookie.
         idToken = req.cookies.__session;}admin.auth().verifyIdToken(idToken).then(decodedIdToken => {req.user = decodedIdToken;return next();}).catch(error => {console.error('Error while verifying Firebase ID token:', error);res.status(403).send('Unauthorized');});};app.use(cors);app.use(cookieParser);app.use(validateFirebaseIdToken);app.get('/conferences/update', (() => {var _ref = (0, _asyncToGenerator3.default)(function* (req, res) {const conferences = yield fetch(functions.config().troll.api_url + '/api/events?token=' + functions.config().troll.api_key).then(function (response) {if (response.status >= 400) {throw new Error(response);}return response.json();}).then((() => {var _ref2 = (0, _asyncToGenerator3.default)(function* (conferences) {yield Promise.all(conferences.events.map(function (conference) {return admin.database().ref(`/conferences/conference_${conference.id}/info`).set(conference);}));yield Promise.all(conferences.events.map(function (conference) {return admin.database().ref(`/conferences/conference_${conference.id}/id`).set(conference.id);}));});return function (_x3) {return _ref2.apply(this, arguments);};})()).catch(function (err) {return res.status(500).send(err.message);});res.send('Update was successfull');});return function (_x, _x2) {return _ref.apply(this, arguments);};})());app.get('/conferences/:conferenceId/update', (() => {var _ref3 = (0, _asyncToGenerator3.default)(function* (req, res) {const conferenceId = req.params.conferenceId;yield Promise.all([fetchAndUpdateActivities(conferenceId), fetchAndUpdateCompanies(conferenceId), fetchAndUpdateRooms(conferenceId), fetchAndUpdateAttendees(conferenceId)]);yield admin.database().ref(`/conferences/conference_${conferenceId}/lastTimeUpdate`).set(new Date().toISOString());res.send('Update successful');});return function (_x4, _x5) {return _ref3.apply(this, arguments);};})());app.get('/conferences/:conferenceId/upload', (() => {var _ref4 = (0, _asyncToGenerator3.default)(function* (req, res) {const conferenceId = req.params.conferenceId;yield fetchAttendanceAndUpdate(conferenceId);yield admin.database().ref(`/conferences/conference_${conferenceId}/uploadTime`).set(new Date().toISOString());res.send('Update successful');});return function (_x6, _x7) {return _ref4.apply(this, arguments);};})());exports.app = functions.https.onRequest(app);function fetchAndUpdateCompanies(conferenceId) {
     return fetch(functions.config().troll.api_url + `/api/events/${conferenceId}/companies?token=${functions.config().troll.api_key}`).
@@ -284,12 +299,12 @@
         }
 
         return response.json();
-    }).then((() => {var _ref9 = (0, _asyncToGenerator3.default)(function* (companies) {
+    }).then((() => {var _ref10 = (0, _asyncToGenerator3.default)(function* (companies) {
             yield Promise.all(companies.companies.map(function (company) {return (
                     admin.database().ref(`/companies/conference_${conferenceId}/${company.id}`).
                     set(company));}));
 
-        });return function (_x12) {return _ref9.apply(this, arguments);};})());
+        });return function (_x13) {return _ref10.apply(this, arguments);};})());
 }
 
 function fetchAndUpdateRooms(conferenceId) {
@@ -300,12 +315,12 @@ function fetchAndUpdateRooms(conferenceId) {
         }
 
         return response.json();
-    }).then((() => {var _ref10 = (0, _asyncToGenerator3.default)(function* (rooms) {
+    }).then((() => {var _ref11 = (0, _asyncToGenerator3.default)(function* (rooms) {
             yield Promise.all(rooms.rooms.map(function (room) {return (
                     admin.database().ref(`/rooms/conference_${conferenceId}/${room.id}`).
                     set(room));}));
 
-        });return function (_x13) {return _ref10.apply(this, arguments);};})());
+        });return function (_x14) {return _ref11.apply(this, arguments);};})());
 }
 
 function fetchAndUpdateActivities(conferenceId) {
@@ -316,12 +331,12 @@ function fetchAndUpdateActivities(conferenceId) {
         }
 
         return response.json();
-    }).then((() => {var _ref11 = (0, _asyncToGenerator3.default)(function* (activities) {
+    }).then((() => {var _ref12 = (0, _asyncToGenerator3.default)(function* (activities) {
             yield Promise.all(activities.activities.map(function (activity) {return (
                     admin.database().ref(`/activities/conference_${conferenceId}/${activity.type}_${activity.id}`).
                     set(activity));}));
 
             yield admin.database().ref(`/conferences/conference_${conferenceId}/activitiesCount`).
             set(activities.activities.length);
-        });return function (_x14) {return _ref11.apply(this, arguments);};})());
+        });return function (_x15) {return _ref12.apply(this, arguments);};})());
 }

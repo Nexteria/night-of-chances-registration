@@ -104,11 +104,16 @@ async function fetchAttendanceAndUpdate(conferenceId) {
 
             const lastTimeUpload = await admin.database().ref(`/conferences/conference_${conferenceId}/uploadTime`).once('value');
 
-            if (data.onspot) {
+            if (data.onspot && !lastTimeUpload) {
                 let attendees = [];
                 Object.keys(data.onspot).map(key => {
-                    const checked_in = data.checkin[key].check_in || null;
-                    const checked_out = data.checkin[key].check_out || null;
+                    let checked_in = null
+                    let checked_out = null
+
+                    if (data.checkin[key]) {
+                      checked_in = data.checkin[key].check_in || null;
+                      checked_out = data.checkin[key].check_out || null;
+                    }
 
                     if (!data.onspot[key].uploaded) {
                         attendees.push({
@@ -142,7 +147,7 @@ async function fetchAttendanceAndUpdate(conferenceId) {
                     }
     
                     return response.json();
-                }).then(data => {
+                }).then(async data => {
                     await Promise.all(Object.keys(data.onspot).map(key =>
                         admin.database().ref(`/attendance/conference_${conferenceId}/onspot/${key}/uploaded`)
                         .set(true)
