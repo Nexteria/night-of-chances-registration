@@ -1,30 +1,35 @@
 {
   "name": "functions",
-  "description": "Cloud Functions for Firebase",
-  "dependencies": {
-    "babel-runtime": "^6.26.0",
-    "cookie-parser": "^1.4.3",
-    "cors": "^2.8.4",
-    "es6-promise": "^4.2.4",
-    "express": "^4.16.2",
-    "firebase-admin": "~4.2.1",
-    "firebase-functions": "^0.8.1",
-    "isomorphic-fetch": "^2.2.1"
-  },
-  "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-plugin-transform-runtime": "^6.23.0",
-    "babel-preset-env": "^1.6.1",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "eslint": "^4.13.1",
-    "eslint-plugin-promise": "^3.6.0"
+  "scripts": {
+    "lint": "eslint --ext .js,.ts .",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
   },
   "engines": {
-    "node": "8"
+    "node": "16"
   },
-  "private": true,
-  "scripts": {
-    "prepare": "babel ./*.es7 --retain-lines -d ./",
-    "lint": "./node_modules/.bin/eslint ."
-  }
+  "main": "lib/index.js",
+  "dependencies": {
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "express": "^4.18.1",
+    "firebase-admin": "^10.0.2",
+    "firebase-functions": "^3.18.0",
+    "isomorphic-fetch": "^3.0.0"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.12.0",
+    "@typescript-eslint/parser": "^5.12.0",
+    "eslint": "^8.9.0",
+    "eslint-config-google": "^0.14.0",
+    "eslint-plugin-import": "^2.25.4",
+    "firebase-functions-test": "^0.2.0",
+    "typescript": "^4.5.4"
+  },
+  "private": true
 }
