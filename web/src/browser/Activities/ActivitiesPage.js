@@ -1,60 +1,39 @@
-import React, { Component } from 'react';
-import { withRouter } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Map } from 'immutable';
-import { withStyles } from 'material-ui/styles';
-import { connect } from 'react-redux';
-import Button from 'material-ui/Button';
-import List, { ListItem, ListItemText } from 'material-ui/List';
+import { useDispatch, useSelector } from 'react-redux';
+
+import Button from '@mui/material/Button';
+import List from '@mui/material/List';
+import ListItemText from '@mui/material/ListItemText';
+import ListItem from '@mui/material/ListItem';
 
 import * as actions from '../../common/CheckIn/actions';
 import * as registrationActions from '../../common/Registration/actions';
 import * as activitiesActions from '../../common/Activities/actions';
+import { Box } from '@mui/material';
 
-const styles = theme => ({
-  root: {
-    width: '100%',
-    margin: 'auto',
-    maxWidth: 360,
-    backgroundColor: theme.palette.background.paper,
-  },
-});
+export const ActivitiesPage = () => {
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
 
-class ActivitiesPage extends Component {
+  const activities = useSelector((state) => state.checkin.activities)
+  const companies = useSelector((state) => state.checkin.companies)
+  const activeConferenceId = useSelector((state) => state.app.activeConferenceId)
+  const selectedCompanyId = useSelector((state) => state.activities.selectedCompanyId)
+  const selectedActivityId = useSelector((state) => state.activities.selectedActivityId)
 
-  componentDidMount() {
-    const {
-      activeConferenceId,
-      fetchAttendeesIfNeeded,
-      fetchAttendanceIfNeeded,
-      subscribeAttendanceIfNeeded,
-      subscribeRegistrations,
-      fetchCompaniesIfNeeded,
-      fetchActivitiesIfNeeded,
-      fetchRoomsIfNeeded,
-    } = this.props;
-
+  useEffect(() => {
     if(activeConferenceId) {
-      fetchAttendeesIfNeeded(activeConferenceId);
-      fetchAttendanceIfNeeded(activeConferenceId);
-      fetchCompaniesIfNeeded(activeConferenceId);
-      fetchActivitiesIfNeeded(activeConferenceId);
-      fetchRoomsIfNeeded(activeConferenceId);
-      subscribeAttendanceIfNeeded(activeConferenceId);
-      subscribeRegistrations(activeConferenceId);
+      dispatch(actions.fetchAttendeesIfNeeded(activeConferenceId))
+      dispatch(actions.fetchAttendanceIfNeeded(activeConferenceId))
+      dispatch(actions.fetchCompaniesIfNeeded(activeConferenceId))
+      dispatch(actions.fetchActivitiesIfNeeded(activeConferenceId))
+      dispatch(actions.fetchRoomsIfNeeded(activeConferenceId))
+      dispatch(actions.subscribeAttendanceIfNeeded(activeConferenceId))
+      dispatch(registrationActions.subscribeRegistrations(activeConferenceId))
     }
-  }
-
-  render() {
-    const {
-      classes,
-      companies,
-      activities,
-      selectCompany,
-      selectActivity,
-      selectedCompanyId,
-      selectedActivityId,
-      history,
-    } = this.props;
+  }, [])
 
     const filteredActivities = activities.filter(activity =>
       activity.get('state') === 'submitted' && (
@@ -78,11 +57,16 @@ class ActivitiesPage extends Component {
     return (
       <div>
         {!selectedCompanyId ?
-          <div className={classes.root}>
+          <Box sx={{
+            width: '100%',
+            margin: 'auto',
+            maxWidth: 360,
+            backgroundColor: 'background.paper',
+          }}>
             <h2>Select company</h2>
             <List>
               {companiesIds.keySeq().map(id =>
-                <ListItem key={id} divider button onClick={() => selectCompany(id)}>
+                <ListItem key={id} divider button onClick={() => dispatch(activitiesActions.selectCompany(id))}>
                   <ListItemText
                     primary={companies.getIn([id, 'name'])}
                     secondary={`${companiesIds.get(id).length} activities`}
@@ -90,7 +74,7 @@ class ActivitiesPage extends Component {
                 </ListItem>
               )}
             </List>
-          </div>
+          </Box>
           : null
         }
 
@@ -104,7 +88,12 @@ class ActivitiesPage extends Component {
             >
             Back
             </Button>
-            <div className={classes.root}>
+            <Box sx={{
+              width: '100%',
+              margin: 'auto',
+              maxWidth: 360,
+              backgroundColor: 'background.paper',
+            }}>
               <h2>Select activities</h2>
               <List>
                 {companiesIds.get(selectedCompanyId).map(id =>
@@ -113,8 +102,8 @@ class ActivitiesPage extends Component {
                     divider
                     button
                     onClick={() => {
-                      selectActivity(id);
-                      history.push(`/activities/${id}`);
+                      dispatch(activitiesActions.selectActivity(id))
+                      navigate(`/activities/${id}`);
                     }}
                   >
                     <ListItemText
@@ -124,24 +113,10 @@ class ActivitiesPage extends Component {
                   </ListItem>
                 )}
               </List>
-            </div>
+            </Box>
           </div>
           : null
         }
       </div>
     );
-  }
 }
-
-ActivitiesPage = withStyles(styles)(ActivitiesPage);
-ActivitiesPage = withRouter(ActivitiesPage);
-
-
-export default connect(state => ({
-  activities: state.checkin.activities,
-  companies: state.checkin.companies,
-  activeConferenceId: state.app.activeConferenceId,
-  attendance: state.checkin.attendance,
-  selectedCompanyId: state.activities.selectedCompanyId,
-  selectedActivityId: state.activities.selectedActivityId,
-}), { ...actions, ...registrationActions, ...activitiesActions})(ActivitiesPage);

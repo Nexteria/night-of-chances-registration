@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
-import Dialog, {
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
-} from 'material-ui/Dialog';
-import Button from 'material-ui/Button';
-import { withStyles } from 'material-ui/styles';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+import DialogContentText from '@mui/material/DialogContentText'
+import Button from '@mui/material/Button';
+import { withStyles } from '@mui/material/styles';
 
 const styles = theme => ({
     paper: {
