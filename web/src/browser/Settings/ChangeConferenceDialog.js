@@ -1,25 +1,15 @@
-import React, { Component } from 'react';
-import Dialog, {
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
-} from 'material-ui/Dialog';
-import Button from 'material-ui/Button';
-import { InputLabel } from 'material-ui/Input';
-import { FormControl } from 'material-ui/Form';
-import Select from 'material-ui/Select';
-import format from 'date-fns/format';
-import { withStyles } from 'material-ui/styles';
-import { connect } from 'react-redux';
-import { Field, reduxForm } from 'redux-form';
-
-const styles = theme => ({
-    paper: {
-        color: '#fff',
-        backgroundColor: '#fb8c00',
-    },
-});
+import React from 'react'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+import DialogContentText from '@mui/material/DialogContentText'
+import DialogTitle from '@mui/material/DialogTitle'
+import Button from '@mui/material/Button'
+import InputLabel from '@mui/material/InputLabel'
+import FormControl from '@mui/material/FormControl'
+import Select from '@mui/material/Select'
+import format from 'date-fns/format'
+import { Field, Form } from 'react-final-form'
 
 const renderSelector = (field, conferences) => {
     return (
@@ -42,59 +32,52 @@ const renderSelector = (field, conferences) => {
     );
 };
 
-export class FormDialog extends Component {
-    render() {
-        const {
-            conferences,
-            toggleConferenceChangeDialog,
-            isOpen,
-            setActiveConference,
-            classes,
-            handleSubmit,
-        } = this.props;
-
-        return (
-            <Dialog
-                open={isOpen}
-                aria-labelledby="form-dialog-title"
-                classes={classes}
-            >
-                <DialogTitle id="form-dialog-title">Change active conference</DialogTitle>
-                <form onSubmit={handleSubmit(data => setActiveConference(data.conferenceId))}>
-                    <DialogContent>
-                        <DialogContentText>
-                            This action should be done before conference.
-                            If you change active conference,
-                            all instances of the app in will be forced to reload.
-                        </DialogContentText>
-                        
-                        <div style={{ width: '100%', textAlign: 'center' }}>
-                            <Field
-                                name="conferenceId"
-                                component={(field) => renderSelector(field, conferences)}
-                                normalize={value => parseInt(value, 10)}
-                            />
-                        </div>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={toggleConferenceChangeDialog} color="primary">
-                        Cancel
-                        </Button>
-                        <Button type="submit" color="primary">
-                            Set active conference
-                        </Button>
-                    </DialogActions>
-                </form>
-            </Dialog>
-        );
-    }
+export const FormDialog = ({
+  conferences,
+  toggleConferenceChangeDialog,
+  isOpen,
+  setActiveConference,
+}) => {
+  return (
+    <Dialog
+      open={isOpen}
+      aria-labelledby="form-dialog-title"
+      PaperProps={{ sx: {
+        color: '#fff',
+        backgroundColor: '#fb8c00',
+    }}}
+    >
+      <DialogTitle id="form-dialog-title">Change active conference</DialogTitle>
+      <Form
+        onSubmit={(data) => setActiveConference(data.conferenceId)}
+        render={({ handleSubmit }) => (
+          <form onSubmit={handleSubmit}>
+              <DialogContent>
+                  <DialogContentText>
+                      This action should be done before conference.
+                      If you change active conference,
+                      all instances of the app in will be forced to reload.
+                  </DialogContentText>
+                  
+                  <div style={{ width: '100%', textAlign: 'center' }}>
+                      <Field
+                          name="conferenceId"
+                          component={(field) => renderSelector(field, conferences)}
+                          normalize={value => parseInt(value, 10)}
+                      />
+                  </div>
+              </DialogContent>
+              <DialogActions>
+                  <Button onClick={toggleConferenceChangeDialog} color="primary">
+                  Cancel
+                  </Button>
+                  <Button type="submit" color="primary">
+                      Set active conference
+                  </Button>
+              </DialogActions>
+          </form>
+        )}
+      />
+    </Dialog>
+  )
 }
-
-FormDialog = reduxForm({
-    form: 'ChangeActiveConferenceDialogForm'
-})(FormDialog);
-
-FormDialog = withStyles(styles)(FormDialog);
-
-export default connect(state => ({
-}))(FormDialog);

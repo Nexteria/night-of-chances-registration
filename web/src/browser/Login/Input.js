@@ -1,32 +1,22 @@
-import React, { Component } from 'react';
-import TextField from 'material-ui/TextField';
-import { withStyles } from 'material-ui/styles';
+import React from 'react'
+import TextField from '@mui/material/TextField'
 
 
-const styles = theme => ({
-  textField: {
-    marginLeft: theme.spacing.unit,
-    marginRight: theme.spacing.unit,
-    width: 200,
-  },
-});
-
-class Input extends Component {
-  render() {
-    const { classes, input, type, label, meta } = this.props;
-    return (
-      <TextField
-        id={input.name}
-        label={label}
-        className={classes.textField}
-        value={input.value}
-        onChange={input.onChange}
-        margin="normal"
-        type={type}
-        error={meta.touched && meta.error}
-      />
-    );
-  }
+export const Input = ({ input, type, label, meta }) => {
+  return (
+    <TextField
+      id={input.name}
+      label={label}
+      sx={{
+        marginLeft: 'spacing.unit',
+        marginRight: 'spacing.unit',
+        width: 200,
+      }}
+      value={input.value}
+      onChange={input.onChange}
+      margin="normal"
+      type={type}
+      error={meta.touched && meta.error}
+    />
+  )
 }
-
-export default withStyles(styles)(Input);

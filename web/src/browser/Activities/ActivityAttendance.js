@@ -1,96 +1,60 @@
-import React, { Component } from 'react';
-import { withStyles } from 'material-ui/styles';
-import { connect } from 'react-redux';
+import React, { useCallback, useEffect, useMemo } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { List, AutoSizer } from 'react-virtualized';
-import { ListItem, ListItemSecondaryAction, ListItemText } from 'material-ui/List';
-import Checkbox from 'material-ui/Checkbox';
-import TextField from 'material-ui/TextField';
-import { InputAdornment } from 'material-ui/Input';
-import SearchIcon from 'material-ui-icons/Search';
-import { withRouter } from 'react-router-dom';
-import CheckIcon from 'material-ui-icons/CheckCircle';
+import ListItemText from '@mui/material/ListItemText';
+import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction';
+import ListItem from '@mui/material/ListItem';
+import Checkbox from '@mui/material/Checkbox';
+import TextField from '@mui/material/TextField';
+import InputAdornment from '@mui/material/InputAdornment'
+import SearchIcon from '@mui/icons-material/Search'
+import { useNavigate } from 'react-router-dom';
+import CheckIcon from '@mui/icons-material/Check'
 
 import * as actions from '../../common/Activities/actions';
 import * as checkinActions from '../../common/CheckIn/actions';
 import * as registrationActions from '../../common/Registration/actions';
-import Button from 'material-ui/Button';
+import Button from '@mui/material/Button';
 
-const styles = theme => ({
-  list: {
-    margin: 'auto',
-    marginTop: '2em',
-  },
-  listItem: {
-    listStyle: 'none',
-    backgroundColor: '#fff',
-    height: '100%',
-  },
-  listItemInner: {
-    height: '100%',
-  },
-  checkIcon: {
-    top: '2px',
-    left: '10px',
-    fill: '#64cc64',
-    position: 'absolute',
-    width: '15px',
-  }
-});
 
 const settings = {
   rowHeight: 50,
 }
 
-class ActivityAttendance extends Component {
-  constructor(props) {
-    super(props);
+export const ActivityAttendance = () => {
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
 
-    this._rowRenderer = this._rowRenderer.bind(this);
-  }
+  const activities = useSelector((state) => state.checkin.activities)
+  const attendance = useSelector((state) => state.checkin.attendance)
+  const companies = useSelector((state) => state.checkin.companies)
+  const activeConferenceId = useSelector((state) => state.app.activeConferenceId)
+  const selectedActivityId = useSelector((state) => state.activities.selectedActivityId)
+  const attendees = useSelector((state) => state.checkin.attendees)
+  const searchFilter = useSelector((state) => state.activities.searchFilter)
 
-  componentDidMount() {
-    const {
-      activeConferenceId,
-      fetchAttendeesIfNeeded,
-      fetchAttendanceIfNeeded,
-      subscribeAttendanceIfNeeded,
-      subscribeRegistrations,
-      fetchCompaniesIfNeeded,
-      fetchActivitiesIfNeeded,
-      fetchRoomsIfNeeded,
-      fetchActivitiesAttendanceIfNeeded,
-    } = this.props;
-
+  useEffect(() => {
     if(activeConferenceId) {
-      fetchAttendeesIfNeeded(activeConferenceId);
-      fetchAttendanceIfNeeded(activeConferenceId);
-      fetchCompaniesIfNeeded(activeConferenceId);
-      fetchActivitiesIfNeeded(activeConferenceId);
-      fetchRoomsIfNeeded(activeConferenceId);
-      subscribeAttendanceIfNeeded(activeConferenceId);
-      subscribeRegistrations(activeConferenceId);
-      fetchActivitiesAttendanceIfNeeded(activeConferenceId);
+      dispatch(checkinActions.fetchAttendeesIfNeeded(activeConferenceId))
+      dispatch(checkinActions.fetchAttendanceIfNeeded(activeConferenceId))
+      dispatch(checkinActions.fetchCompaniesIfNeeded(activeConferenceId))
+      dispatch(checkinActions.fetchActivitiesIfNeeded(activeConferenceId))
+      dispatch(checkinActions.fetchRoomsIfNeeded(activeConferenceId))
+      dispatch(checkinActions.subscribeAttendanceIfNeeded(activeConferenceId))
+      dispatch(registrationActions.subscribeRegistrations(activeConferenceId))
+      dispatch(actions.fetchActivitiesAttendanceIfNeeded(activeConferenceId))
     }
-  }
+  }, [])
 
-  componentWillReceiveProps(nexProps) {
-    const {
-      activeConferenceId,
-      activities,
-      subscribeActivitiesAttendanceIfNeeded,
-    } = nexProps;
+  useEffect(() => {
+    dispatch(actions.subscribeActivitiesAttendanceIfNeeded(activeConferenceId))
+  }, [activities.size, activeConferenceId, dispatch])
 
-    if (activities.size) {
-      subscribeActivitiesAttendanceIfNeeded(activeConferenceId);
-    }
-  }
-
-  _noRowsRenderer() {
+  const _noRowsRenderer = useCallback(() => {
     return <div className={{ height: settings.rowHeight }}>No attendees</div>;
-  }
+  }, [])
 
-  _rowRenderer({index, isScrolling, key, style}, attendees, classes, activity) {
-    const { attendance, activeConferenceId, setActivityAttendance } = this.props;
+  const _rowRenderer = useCallback(({index, isScrolling, key, style}, attendees, activity) => {
     const attendee = attendees.get(index);
     const activityId = `${activity.get('type')}_${activity.get('id')}`;
 
@@ -100,109 +64,106 @@ class ActivityAttendance extends Component {
     return (
       <div key={key} style={style}>
         {activity.get('attendees').has(`${attendee.get('id')}`) ?
-          <CheckIcon className={classes.checkIcon} />
+          <CheckIcon sx={{
+            top: '2px',
+            left: '10px',
+            fill: '#64cc64',
+            position: 'absolute',
+            width: '15px',
+          }} />
           : null
         }
         <ListItem
           key={key}
           dense
           button
-          className={classes.listItemInner}
-          ContainerProps={{ className: classes.listItem }}
+          sx={{
+            height: '100%',
+          }}
+          conta
+          ContainerProps={{ sx: {
+            listStyle: 'none',
+            backgroundColor: '#fff',
+            height: '100%',
+          } }}
         >
           <ListItemText primary={`${attendee.get('name')} ${attendee.get('surname')} (${attendee.get('email')})`} />
           <ListItemSecondaryAction>
             <Checkbox
-              onChange={() => setActivityAttendance(!isCheckedIn, attendee.get('id'), activeConferenceId, `${activity.get('type')}_${activity.get('id')}`)}
+              onChange={() => dispatch(actions.setActivityAttendance(!isCheckedIn, attendee.get('id'), activeConferenceId, `${activity.get('type')}_${activity.get('id')}`))}
               checked={isCheckedIn}
             />
           </ListItemSecondaryAction>
         </ListItem>
       </div>
     );
-  }
+  }, [attendance, activeConferenceId, dispatch])
 
-  render() {
-    const {
-      classes,
-      attendees,
-      changeSearchFilter,
-      searchFilter,
-      companies,
-      activities,
-      selectedActivityId,
-      attendance,
-    } = this.props;
-
-    if (!activities.size || !attendees.size || !companies.size) {
-      return null;
-    }
-
-    const sortedAttendees = attendees.filter(attendee =>
+  const sortedAttendees = useMemo(() => {
+    if (!attendees) return []
+    return attendees.filter(attendee =>
         attendee.get('searchString').includes(searchFilter)
-    ).toList();
+    ).toList()
+  }, [attendees, searchFilter])
 
-    let activityAttendance = new Map();
+  const activityAttendance = useMemo(() => {
+    let records = new Map()
     if (attendance.size && attendance.get(selectedActivityId)) {
-      activityAttendance = attendance.get(selectedActivityId).filter(attendee => {
+      records = attendance.get(selectedActivityId).filter(attendee => {
           return attendee.get('check_in');
       });
     }
 
-    const activity = activities.get(selectedActivityId);
+    return records
+  }, [attendance, selectedActivityId])
 
-    return (
-      <div>
-        <Button
-          variant="raised"
-          onClick={() => {
-            this.props.selectActivity(null);
-            this.props.history.push(`/activities`);
-          }}
-        >
-        Back
-        </Button>
-        <h3>{activity.get('title')}</h3>
-        <h4>{activityAttendance.size} / {activity.get('attendees').size}</h4>
-        <TextField
-          label="Search"
-          onChange={(e) => changeSearchFilter(e.target.value)}
-          InputProps={{
-            startAdornment: <InputAdornment position="start"><SearchIcon /></InputAdornment>,
-          }}
-        />
-
-        <div style={{ height: '100%' }}>
-          <AutoSizer disableHeight>
-            {({width}) => (
-              <List
-                ref="List"
-                className={classes.list}
-                height={450}
-                overscanRowCount={15}
-                noRowsRenderer={this._noRowsRenderer}
-                rowCount={sortedAttendees.size}
-                rowHeight={settings.rowHeight}
-                rowRenderer={(data) => this._rowRenderer(data, sortedAttendees, classes, activity)}
-                width={width}
-              />
-            )}
-          </AutoSizer>
-        </div>
-      </div>
-    );
+  if (!activities.size || !attendees.size || !companies.size) {
+    return null;
   }
+
+  const activity = activities.get(selectedActivityId);
+
+  return (
+    <div>
+      <Button
+        variant="raised"
+        onClick={() => {
+          dispatch(actions.selectActivity(null))
+          navigate(`/activities`)
+        }}
+      >
+      Back
+      </Button>
+      <h3>{activity.get('title')}</h3>
+      <h4>{activityAttendance.size} / {activity.get('attendees').size}</h4>
+      <TextField
+        label="Search"
+        onChange={(e) => dispatch(actions.changeSearchFilter(e.target.value))}
+        InputProps={{
+          startAdornment: <InputAdornment position="start"><SearchIcon /></InputAdornment>,
+        }}
+      />
+
+      <div style={{ height: '100%' }}>
+        <AutoSizer disableHeight>
+          {({width}) => (
+            <List
+              ref="List"
+              sx={{
+                margin: 'auto',
+                marginTop: '2em',
+              }}
+              height={450}
+              overscanRowCount={15}
+              noRowsRenderer={_noRowsRenderer}
+              rowCount={sortedAttendees.size}
+              rowHeight={settings.rowHeight}
+              rowRenderer={(data) => _rowRenderer(data, sortedAttendees, activity)}
+              width={width}
+            />
+          )}
+        </AutoSizer>
+      </div>
+    </div>
+  );
 }
-
-ActivityAttendance = withStyles(styles)(ActivityAttendance);
-ActivityAttendance = withRouter(ActivityAttendance);
-
-export default connect(state => ({
-  attendees: state.checkin.attendees,
-  activities: state.checkin.activities,
-  companies: state.checkin.companies,
-  activeConferenceId: state.app.activeConferenceId,
-  searchFilter: state.activities.searchFilter,
-  attendance: state.activities.attendance,
-  selectedActivityId: state.activities.selectedActivityId,
-}), { ...checkinActions, ...actions, ...registrationActions})(ActivityAttendance);
