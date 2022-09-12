@@ -30,7 +30,7 @@ export default function checkinReducer(state = new InitialState(), action) {
         return state.set('attendees', new Map(attendees.map(attendee =>
           [attendee.id, new Map({
             ...attendee,
-            searchString: `${attendee.name} ${attendee.surname} ${attendee.email} ${diacritics.remove(attendee.name).toLowerCase()} ${diacritics.remove(attendee.surname).toLowerCase()}`,
+            searchString: `${attendee.name.toLowerCase()} ${attendee.surname.toLowerCase()} ${attendee.email.toLowerCase()} ${diacritics.remove(attendee.name).toLowerCase()} ${diacritics.remove(attendee.surname).toLowerCase()}`,
             assignments: attendee.assignments ?
               new Map(attendee.assignments.filter(assignment =>
                 assignment.assigned && assignment.confirmed).map(assignment => {

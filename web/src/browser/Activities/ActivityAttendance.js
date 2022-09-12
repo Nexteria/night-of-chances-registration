@@ -137,7 +137,7 @@ class ActivityAttendance extends Component {
     const isEmpty = !activities.size || !attendees.size || !companies.size
 
     const sortedAttendees = attendees.filter(attendee =>
-        attendee.get('searchString').includes(searchFilter)
+        attendee.get('searchString').includes(searchFilter.toLowerCase())
     ).toList();
 
     let activityAttendance = new Map();

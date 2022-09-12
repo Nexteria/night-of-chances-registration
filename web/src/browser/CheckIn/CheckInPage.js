@@ -113,7 +113,7 @@ class CheckInPage extends Component {
     } = this.props;
 
     const sortedAttendees = attendees.filter(attendee =>
-        attendee.get('searchString').includes(searchFilter)
+        attendee.get('searchString').includes(searchFilter.toLowerCase())
       ).toList();
 
     return (
