@@ -100,7 +100,7 @@ class App extends Component {
             </Toolbar>
           </AppBar>
 
-          {user && !user.get('isBuddy') ?
+          {user && user.get('isBuddy') === false ?
             <Drawer
               variant="permanent"
               classes={{
