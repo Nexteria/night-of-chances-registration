@@ -14,15 +14,15 @@
     "immutable": "^3.8.2",
     "invariant": "^2.2.3",
     "isomorphic-fetch": "^2.2.1",
-    "material-ui": "^1.0.0-beta.35",
-    "material-ui-icons": "^1.0.0-beta.35",
+    "material-ui": "1.0.0-beta.35",
+    "material-ui-icons": "1.0.0-beta.35",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-overlay-loader": "^0.0.3",
     "react-redux": "^5.0.7",
     "react-router-dom": "^4.2.2",
     "react-router-redux": "^5.0.0-alpha.9",
-    "react-scripts": "1.1.1",
+    "react-scripts": "2.0.3",
     "react-virtualized": "^9.18.5",
     "recharts": "^1.0.0-beta.10",
     "redux": "^3.7.2",
@@ -42,5 +42,14 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
+  "devDependencies": {
+    "@babel/cli": "^7.18.10"
   }
 }

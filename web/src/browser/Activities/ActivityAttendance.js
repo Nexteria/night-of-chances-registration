@@ -134,9 +134,7 @@ class ActivityAttendance extends Component {
       attendance,
     } = this.props;
 
-    if (!activities.size || !attendees.size || !companies.size) {
-      return null;
-    }
+    const isEmpty = !activities.size || !attendees.size || !companies.size
 
     const sortedAttendees = attendees.filter(attendee =>
         attendee.get('searchString').includes(searchFilter)
@@ -162,33 +160,41 @@ class ActivityAttendance extends Component {
         >
         Back
         </Button>
-        <h3>{activity.get('title')}</h3>
-        <h4>{activityAttendance.size} / {activity.get('attendees').size}</h4>
-        <TextField
-          label="Search"
-          onChange={(e) => changeSearchFilter(e.target.value)}
-          InputProps={{
-            startAdornment: <InputAdornment position="start"><SearchIcon /></InputAdornment>,
-          }}
-        />
+        {activity && (
+          <>
+            <h3>{activity.get('title')}</h3>
+            <h4>{activityAttendance.size} / {activity.get('attendees').size}</h4>
+          </>
+        )}
+        {!isEmpty && (
+          <>
+            <TextField
+              label="Search"
+              onChange={(e) => changeSearchFilter(e.target.value)}
+              InputProps={{
+                startAdornment: <InputAdornment position="start"><SearchIcon /></InputAdornment>,
+              }}
+            />
 
-        <div style={{ height: '100%' }}>
-          <AutoSizer disableHeight>
-            {({width}) => (
-              <List
-                ref="List"
-                className={classes.list}
-                height={450}
-                overscanRowCount={15}
-                noRowsRenderer={this._noRowsRenderer}
-                rowCount={sortedAttendees.size}
-                rowHeight={settings.rowHeight}
-                rowRenderer={(data) => this._rowRenderer(data, sortedAttendees, classes, activity)}
-                width={width}
-              />
-            )}
-          </AutoSizer>
-        </div>
+            <div style={{ height: '100%' }}>
+              <AutoSizer disableHeight>
+                {({width}) => (
+                  <List
+                    ref="List"
+                    className={classes.list}
+                    height={450}
+                    overscanRowCount={15}
+                    noRowsRenderer={this._noRowsRenderer}
+                    rowCount={sortedAttendees.size}
+                    rowHeight={settings.rowHeight}
+                    rowRenderer={(data) => this._rowRenderer(data, sortedAttendees, classes, activity)}
+                    width={width}
+                  />
+                )}
+              </AutoSizer>
+            </div>
+          </>
+        )}
       </div>
     );
   }
